@@ -15,6 +15,7 @@ export default {
             balance: 0
         }
     },
+    
     created: function(){
         this.username = this.$route.params.username
         let self = this
