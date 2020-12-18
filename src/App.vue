@@ -5,13 +5,13 @@
       <nav>
         <button v-on:click="init" v-if="is_auth">Inicio</button>
         <button v-on:click="getBalance" v-if="is_auth">Saldo</button>
-        <button v-if="is_auth">Transacción</button>
-        <button v-if="is_auth">Cerrar Sesión</button>
+        <button v-on:click="doTransaction" v-if="is_auth">Transacción</button>
+        <button v-on:click="logOut" v-if="is_auth">Cerrar Sesión</button>
       </nav>
     </div>
 
     <div class="main-component">
-      <router-view></router-view>
+      <router-view v-on:log-in="logIn"></router-view>
     </div>
 
     <div class="footer">
@@ -21,15 +21,49 @@
 </template>
 
 <script>
+
+import vueRouter from 'vue-router'
+
 export default {
   name: "App",
-  components: {},
   data: function () {
     return {
       is_auth: localStorage.getItem("isAuth") || false,
     };
   },
+  // beforeDestroy () {
+  //   localStorage.removeItem('vuex');
+  // },
+  components: {
+    
+  },
+
   methods: {
+    updateAuth: function(){
+      var self = this
+      self.is_auth  = localStorage.getItem('isAuth') || false
+
+      if(self.is_auth == false)
+        self.$router.push({name: "user_auth"})
+
+      else{
+        let username = localStorage.getItem("current_username")
+        self.$router.push({name: "user", params:{ username: username }})
+      }  
+    },
+
+    logIn: function(username){
+      localStorage.setItem('current_username', username)
+      localStorage.setItem('isAuth', true)
+      this.updateAuth()
+    },
+
+    logOut: function(){
+      localStorage.removeItem('isAuth')
+      localStorage.removeItem('current_username')
+      this.updateAuth()
+    },
+    
     init: function () {
       if (this.$route.name != "user") {
         let username = localStorage.getItem("current_username");
@@ -46,14 +80,27 @@ export default {
         });
       }
     },
+    
+    doTransaction: function(){
+      
+        let username = localStorage.getItem("current_username")
+        this.$router.push({name: "user_transaction", params:{ username: username }})
+    }
+    
   },
 
-  beforeCreate: function () {
-    localStorage.setItem("current_username", "eslunap19");
-    localStorage.setItem("isAuth", true);
+  created: function(){
+    this.$router.push({name: "root"})
+    this.updateAuth()
+  }
 
-    this.$router.push({ name: "user", params: { username: "eslunap19" } });
-  },
+  // beforeCreate: function () {
+  //   localStorage.setItem("current_username", "eslunap19");
+  //   localStorage.setItem("isAuth", true);
+
+  //   this.$router.push({ name: "user", params: { username: "eslunap19" } });
+  // },
+
 };
 </script>
 
